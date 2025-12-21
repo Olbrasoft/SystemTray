@@ -40,6 +40,12 @@ public class TrayIcon : ITrayIcon
     private int _currentFrameIndex;
     private readonly object _animationLock = new();
 
+    // GNOME Shell workaround delays (ms)
+    // GNOME Shell's appindicator extension sometimes doesn't pick up icon changes immediately.
+    // These delays ensure signals are re-emitted after initial registration to force icon refresh.
+    private const int GnomeShellInitialDelayMs = 100;
+    private const int GnomeShellSecondDelayMs = 400;
+
     /// <inheritdoc />
     public string Id => _id;
 
@@ -169,52 +175,78 @@ public class TrayIcon : ITrayIcon
             _connection.RemoveMethodHandler(_pathHandler!.Path);
             _connection.AddMethodHandler(_pathHandler);
 
-            // Add menu handler if provided
-            if (_menuHandler is not null)
-            {
-                try
-                {
-                    // Let the menu handler register itself with D-Bus
-                    // This avoids cross-assembly type incompatibility issues
-                    _menuHandler.RegisterWithDbus(_connection);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to register menu handler");
-                }
-            }
+            // Register menu handler if provided
+            RegisterMenuHandler();
 
-            // Register with unique connection name only
-            _sysTrayServiceName = _connection.UniqueName!;
-            await _statusNotifierWatcher.RegisterStatusNotifierItemAsync(_sysTrayServiceName);
+            // Register with StatusNotifierWatcher and set initial state
+            await RegisterWithStatusNotifierWatcherAsync();
 
-            // Set initial state IMMEDIATELY after registration
-            _sniHandler.SetTitleAndTooltip(_tooltipText);
-            _sniHandler.SetIcon(_currentIcon);
-
-            _logger.LogInformation("Tray icon registered as {ServiceName}", _sysTrayServiceName);
-
-            // Re-emit signals after delays for GNOME Shell's appindicator extension
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(100);
-                if (!_isDisposed && _sniHandler?.PathHandler is not null)
-                {
-                    _sniHandler.SetIcon(_currentIcon);
-                }
-
-                await Task.Delay(400);
-                if (!_isDisposed && _sniHandler?.PathHandler is not null)
-                {
-                    _sniHandler.SetIcon(_currentIcon);
-                    _logger.LogDebug("Re-emitted icon signals for GNOME Shell");
-                }
-            });
+            // Re-emit signals for GNOME Shell workaround
+            ReEmitSignalsForGnomeShellAsync();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to create tray icon");
         }
+    }
+
+    /// <summary>
+    /// Registers the menu handler with D-Bus connection if provided.
+    /// Handles cross-assembly type incompatibility by delegating registration to the handler itself.
+    /// </summary>
+    private void RegisterMenuHandler()
+    {
+        if (_menuHandler is null)
+            return;
+
+        try
+        {
+            // Let the menu handler register itself with D-Bus
+            // This avoids cross-assembly type incompatibility issues
+            _menuHandler.RegisterWithDbus(_connection!);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to register menu handler");
+        }
+    }
+
+    /// <summary>
+    /// Registers the tray icon with StatusNotifierWatcher and sets initial icon state.
+    /// </summary>
+    private async Task RegisterWithStatusNotifierWatcherAsync()
+    {
+        _sysTrayServiceName = _connection!.UniqueName!;
+        await _statusNotifierWatcher!.RegisterStatusNotifierItemAsync(_sysTrayServiceName);
+
+        // Set initial state IMMEDIATELY after registration
+        _sniHandler!.SetTitleAndTooltip(_tooltipText);
+        _sniHandler.SetIcon(_currentIcon);
+
+        _logger.LogInformation("Tray icon registered as {ServiceName}", _sysTrayServiceName);
+    }
+
+    /// <summary>
+    /// Re-emits D-Bus signals after delays to work around GNOME Shell's appindicator extension
+    /// not always picking up icon changes immediately after registration.
+    /// </summary>
+    private void ReEmitSignalsForGnomeShellAsync()
+    {
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(GnomeShellInitialDelayMs);
+            if (!_isDisposed && _sniHandler?.PathHandler is not null)
+            {
+                _sniHandler.SetIcon(_currentIcon);
+            }
+
+            await Task.Delay(GnomeShellSecondDelayMs);
+            if (!_isDisposed && _sniHandler?.PathHandler is not null)
+            {
+                _sniHandler.SetIcon(_currentIcon);
+                _logger.LogDebug("Re-emitted icon signals for GNOME Shell");
+            }
+        });
     }
 
     private void DestroyTrayIcon()
