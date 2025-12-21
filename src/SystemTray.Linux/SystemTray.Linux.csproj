@@ -11,7 +11,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>Olbrasoft.SystemTray.Linux</PackageId>
-    <Version>1.1.1</Version>
+    <Version>1.1.2</Version>
     <Authors>Olbrasoft</Authors>
     <Company>Olbrasoft</Company>
     <Product>Olbrasoft SystemTray.Linux</Product>
