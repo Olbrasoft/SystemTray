@@ -48,4 +48,11 @@ public interface ITrayMenuHandler
     /// Required for D-Bus communication.
     /// </summary>
     Connection Connection { get; }
+
+    /// <summary>
+    /// Initializes the menu handler with a D-Bus connection.
+    /// Called by TrayIcon during initialization.
+    /// </summary>
+    /// <param name="connection">The D-Bus connection to use</param>
+    void InitializeConnection(Connection connection);
 }

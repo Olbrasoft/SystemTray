@@ -11,7 +11,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>Olbrasoft.SystemTray.Linux</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Authors>Olbrasoft</Authors>
     <Company>Olbrasoft</Company>
     <Product>Olbrasoft SystemTray.Linux</Product>
@@ -23,7 +23,7 @@
     <PackageIcon>tray.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/Olbrasoft/SystemTray</PackageProjectUrl>
-    <PackageReleaseNotes>Version 1.1.0: Added context menu support via DBusMenu protocol. Applications can now register custom menu handlers with their tray icons.</PackageReleaseNotes>
+    <PackageReleaseNotes>Version 1.1.1: Fixed menu handler registration across assemblies using reflection to work around internal IDBusInterfaceHandler limitations.</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

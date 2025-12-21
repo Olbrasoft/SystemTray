@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using Olbrasoft.SystemTray.Linux.Internal;
 using Tmds.DBus.Protocol;
@@ -172,22 +173,63 @@ public class TrayIcon : ITrayIcon
             // Add menu handler if provided
             if (_menuHandler is not null)
             {
-                // Menu handler must implement IDBusInterfaceHandler (from ComCanonicalDbusmenuHandler)
-                if (_menuHandler is IDBusInterfaceHandler dbusHandler)
-                {
-                    if (dbusHandler.PathHandler is null)
-                    {
-                        _menuPathHandler = new PathHandler("/MenuBar");
-                        _menuPathHandler.Add(dbusHandler);
-                    }
+                // Initialize menu handler with D-Bus connection
+                _menuHandler.InitializeConnection(_connection);
 
-                    _connection.RemoveMethodHandler(_menuPathHandler!.Path);
-                    _connection.AddMethodHandler(_menuPathHandler);
-                    _logger.LogDebug("Menu handler registered at /MenuBar");
-                }
-                else
+                // Register menu handler with D-Bus
+                // Menu handler must implement IDBusInterfaceHandler (internal interface from generated code)
+                // Since IDBusInterfaceHandler is internal in each assembly, use dynamic to bypass type checking
+                _menuPathHandler = new PathHandler("/MenuBar");
+
+                try
                 {
-                    _logger.LogWarning("Menu handler does not implement IDBusInterfaceHandler, menu will not be registered");
+                    // Get PathHandler's internal collection field directly
+                    var dbusInterfacesField = typeof(PathHandler).GetField("_dbusInterfaces",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+                    if (dbusInterfacesField != null)
+                    {
+                        // Get the collection
+                        dynamic collection = dbusInterfacesField.GetValue(_menuPathHandler)!;
+
+                        // Set PathHandler field directly (bypassing type checking by using FieldInfo.SetValueDirect with TypedReference)
+                        // This is necessary because PathHandler types are different across assemblies
+                        var menuHandlerType = _menuHandler.GetType();
+                        var baseType = menuHandlerType.BaseType; // Get ComCanonicalDbusmenuHandler base type
+
+                        if (baseType != null)
+                        {
+                            // Look for PathHandler auto-property backing field in base type (generated code)
+                            var pathHandlerField = baseType.GetField("<PathHandler>k__BackingField",
+                                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+                            if (pathHandlerField != null)
+                            {
+                                // Use FieldInfo.SetValue without type checking
+                                pathHandlerField.SetValue(_menuHandler, _menuPathHandler);
+                                _logger.LogDebug("PathHandler field set directly on base type");
+                            }
+                            else
+                            {
+                                _logger.LogWarning("PathHandler field not found on base type");
+                            }
+                        }
+
+                        // Add to collection using dynamic (bypasses type checking at compile time)
+                        collection.Add((object)_menuHandler);
+
+                        _connection.RemoveMethodHandler(_menuPathHandler.Path);
+                        _connection.AddMethodHandler(_menuPathHandler);
+                        _logger.LogDebug("Menu handler registered at /MenuBar");
+                    }
+                    else
+                    {
+                        _logger.LogWarning("PathHandler._dbusInterfaces field not found, menu will not be registered");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to register menu handler");
                 }
             }
 
