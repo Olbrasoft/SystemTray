@@ -121,9 +121,11 @@ public class TrayIconManager : ITrayIconManager
         if (_isDisposed)
             return;
 
-        _isDisposed = true;
-
+        // Remove all icons BEFORE setting disposed flag
+        // Otherwise RemoveAllIcons() will throw ObjectDisposedException
         RemoveAllIcons();
+
+        _isDisposed = true;
 
         _logger.LogInformation("TrayIconManager disposed");
     }
