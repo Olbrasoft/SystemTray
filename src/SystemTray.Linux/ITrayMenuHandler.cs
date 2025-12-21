@@ -50,9 +50,17 @@ public interface ITrayMenuHandler
     Connection Connection { get; }
 
     /// <summary>
-    /// Initializes the menu handler with a D-Bus connection.
-    /// Called by TrayIcon during initialization.
+    /// Registers the menu handler with D-Bus connection.
+    /// The implementation should create its own PathHandler and register itself.
+    /// Called by TrayIcon during tray icon creation.
     /// </summary>
     /// <param name="connection">The D-Bus connection to use</param>
-    void InitializeConnection(Connection connection);
+    void RegisterWithDbus(Connection connection);
+
+    /// <summary>
+    /// Unregisters the menu handler from D-Bus connection.
+    /// Called by TrayIcon during tray icon destruction.
+    /// </summary>
+    /// <param name="connection">The D-Bus connection to unregister from</param>
+    void UnregisterFromDbus(Connection connection);
 }

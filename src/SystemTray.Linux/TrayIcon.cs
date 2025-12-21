@@ -22,7 +22,6 @@ public class TrayIcon : ITrayIcon
     private OrgKdeStatusNotifierWatcherProxy? _statusNotifierWatcher;
     private StatusNotifierItemHandler? _sniHandler;
     private PathHandler? _pathHandler;
-    private PathHandler? _menuPathHandler;
 
     private IDisposable? _serviceWatchDisposable;
 
@@ -173,59 +172,11 @@ public class TrayIcon : ITrayIcon
             // Add menu handler if provided
             if (_menuHandler is not null)
             {
-                // Initialize menu handler with D-Bus connection
-                _menuHandler.InitializeConnection(_connection);
-
-                // Register menu handler with D-Bus
-                // Menu handler must implement IDBusInterfaceHandler (internal interface from generated code)
-                // Since IDBusInterfaceHandler is internal in each assembly, use dynamic to bypass type checking
-                _menuPathHandler = new PathHandler("/MenuBar");
-
                 try
                 {
-                    // Get PathHandler's internal collection field directly
-                    var dbusInterfacesField = typeof(PathHandler).GetField("_dbusInterfaces",
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-                    if (dbusInterfacesField != null)
-                    {
-                        // Get the collection
-                        dynamic collection = dbusInterfacesField.GetValue(_menuPathHandler)!;
-
-                        // Set PathHandler field directly (bypassing type checking by using FieldInfo.SetValueDirect with TypedReference)
-                        // This is necessary because PathHandler types are different across assemblies
-                        var menuHandlerType = _menuHandler.GetType();
-                        var baseType = menuHandlerType.BaseType; // Get ComCanonicalDbusmenuHandler base type
-
-                        if (baseType != null)
-                        {
-                            // Look for PathHandler auto-property backing field in base type (generated code)
-                            var pathHandlerField = baseType.GetField("<PathHandler>k__BackingField",
-                                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-                            if (pathHandlerField != null)
-                            {
-                                // Use FieldInfo.SetValue without type checking
-                                pathHandlerField.SetValue(_menuHandler, _menuPathHandler);
-                                _logger.LogDebug("PathHandler field set directly on base type");
-                            }
-                            else
-                            {
-                                _logger.LogWarning("PathHandler field not found on base type");
-                            }
-                        }
-
-                        // Add to collection using dynamic (bypasses type checking at compile time)
-                        collection.Add((object)_menuHandler);
-
-                        _connection.RemoveMethodHandler(_menuPathHandler.Path);
-                        _connection.AddMethodHandler(_menuPathHandler);
-                        _logger.LogDebug("Menu handler registered at /MenuBar");
-                    }
-                    else
-                    {
-                        _logger.LogWarning("PathHandler._dbusInterfaces field not found, menu will not be registered");
-                    }
+                    // Let the menu handler register itself with D-Bus
+                    // This avoids cross-assembly type incompatibility issues
+                    _menuHandler.RegisterWithDbus(_connection);
                 }
                 catch (Exception ex)
                 {
@@ -277,12 +228,15 @@ public class TrayIcon : ITrayIcon
             _connection.RemoveMethodHandler(_pathHandler.Path);
 
             // Remove menu handler if registered
-            if (_menuHandler is not null && _menuPathHandler is not null)
+            if (_menuHandler is not null)
             {
-                if (_menuHandler is IDBusInterfaceHandler dbusHandler)
+                try
                 {
-                    _menuPathHandler.Remove(dbusHandler);
-                    _connection.RemoveMethodHandler(_menuPathHandler.Path);
+                    _menuHandler.UnregisterFromDbus(_connection);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogDebug(ex, "Error unregistering menu handler");
                 }
             }
         }
