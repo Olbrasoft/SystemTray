@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <!-- Engineering Handbook: folder name WITHOUT Olbrasoft, namespace WITH Olbrasoft -->
+    <RootNamespace>Olbrasoft.SystemTray.Linux.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Olbrasoft.Linux.SystemTray\Olbrasoft.Linux.SystemTray.csproj" />
+    <ProjectReference Include="..\..\src\SystemTray.Linux\SystemTray.Linux.csproj" />
   </ItemGroup>
 
 </Project>

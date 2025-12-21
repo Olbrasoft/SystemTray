@@ -6,9 +6,11 @@
     <Nullable>enable</Nullable>
     <!-- Emit source generator output to file for debugging -->
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <!-- Engineering Handbook: folder name WITHOUT Olbrasoft, namespace WITH Olbrasoft -->
+    <RootNamespace>Olbrasoft.SystemTray.Linux</RootNamespace>
 
     <!-- NuGet Package Metadata -->
-    <PackageId>Olbrasoft.Linux.SystemTray</PackageId>
+    <PackageId>Olbrasoft.SystemTray.Linux</PackageId>
     <Version>1.0.0</Version>
     <Authors>Olbrasoft</Authors>
     <Description>Linux system tray icon library using D-Bus StatusNotifierItem protocol. Supports dynamic icon changes, animations, and multiple simultaneous icons. Hides D-Bus complexity behind a clean C# interface.</Description>
