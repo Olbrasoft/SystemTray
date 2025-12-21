@@ -13,12 +13,17 @@
     <PackageId>Olbrasoft.SystemTray.Linux</PackageId>
     <Version>1.0.0</Version>
     <Authors>Olbrasoft</Authors>
+    <Company>Olbrasoft</Company>
+    <Product>Olbrasoft SystemTray.Linux</Product>
     <Description>Linux system tray icon library using D-Bus StatusNotifierItem protocol. Supports dynamic icon changes, animations, and multiple simultaneous icons. Hides D-Bus complexity behind a clean C# interface.</Description>
-    <PackageTags>linux;systemtray;dbus;statusnotifieritem;trayicon;notification;icon;animation</PackageTags>
+    <Copyright>© Olbrasoft 2025</Copyright>
+    <PackageTags>linux;systemtray;dbus;statusnotifieritem;trayicon;notification;icon;animation;NET10</PackageTags>
     <RepositoryUrl>https://github.com/Olbrasoft/SystemTray</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>tray.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/Olbrasoft/SystemTray</PackageProjectUrl>
+    <PackageReleaseNotes>Version 1.0.0: Initial release with D-Bus StatusNotifierItem support, dynamic icons, and animations.</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -48,9 +53,10 @@
     <AdditionalFiles Include="DBusXml/org.kde.StatusNotifierItem.xml" DBusGeneratorMode="Handler" />
   </ItemGroup>
 
-  <!-- Include README in NuGet package -->
+  <!-- Include README and icon in NuGet package -->
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../assets/tray.png" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>
