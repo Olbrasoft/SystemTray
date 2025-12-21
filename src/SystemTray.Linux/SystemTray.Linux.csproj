@@ -8,10 +8,14 @@
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <!-- Engineering Handbook: folder name WITHOUT Olbrasoft, namespace WITH Olbrasoft -->
     <RootNamespace>Olbrasoft.SystemTray.Linux</RootNamespace>
+    <!-- Suppress nullable warnings in generated D-Bus code (CS8619) -->
+    <NoWarn>CS8619</NoWarn>
 
     <!-- NuGet Package Metadata -->
     <PackageId>Olbrasoft.SystemTray.Linux</PackageId>
-    <Version>1.1.2</Version>
+    <!-- Version is auto-calculated in CI/CD as 1.1.${{ github.run_number }} -->
+    <!-- This is fallback for local builds only -->
+    <Version>1.1.0-local</Version>
     <Authors>Olbrasoft</Authors>
     <Company>Olbrasoft</Company>
     <Product>Olbrasoft SystemTray.Linux</Product>
@@ -23,7 +27,7 @@
     <PackageIcon>tray.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/Olbrasoft/SystemTray</PackageProjectUrl>
-    <PackageReleaseNotes>Version 1.1.1: Fixed menu handler registration across assemblies using reflection to work around internal IDBusInterfaceHandler limitations.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed CS8619 nullable warnings in generated D-Bus code. Implemented automatic versioning via GitHub Actions (1.1.x).</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
