@@ -68,9 +68,4 @@ public interface ITrayIcon : IDisposable
     /// Event raised when the tray icon is clicked.
     /// </summary>
     event EventHandler? Clicked;
-
-    /// <summary>
-    /// Event raised when the tray icon context menu is requested.
-    /// </summary>
-    event EventHandler? MenuRequested;
 }

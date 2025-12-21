@@ -67,9 +67,6 @@ public class TrayIcon : ITrayIcon
     /// <inheritdoc />
     public event EventHandler? Clicked;
 
-    /// <inheritdoc />
-    public event EventHandler? MenuRequested;
-
     public TrayIcon(ILogger<TrayIcon> logger, IIconRenderer iconRenderer, string id, ITrayMenuHandler? menuHandler = null)
     {
         _logger = logger;
