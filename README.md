@@ -1,4 +1,7 @@
-# Olbrasoft.Linux.SystemTray
+# Olbrasoft.SystemTray.Linux
+
+[![Build](https://github.com/Olbrasoft/SystemTray/actions/workflows/build.yml/badge.svg)](https://github.com/Olbrasoft/SystemTray/actions/workflows/build.yml)
+[![NuGet](https://img.shields.io/nuget/v/Olbrasoft.SystemTray.Linux.svg)](https://www.nuget.org/packages/Olbrasoft.SystemTray.Linux/)
 
 A modern .NET library for creating system tray icons on Linux using the D-Bus StatusNotifierItem protocol.
 
@@ -15,7 +18,7 @@ A modern .NET library for creating system tray icons on Linux using the D-Bus St
 ## Installation
 
 ```bash
-dotnet add package Olbrasoft.Linux.SystemTray
+dotnet add package Olbrasoft.SystemTray.Linux
 ```
 
 ## Quick Start
