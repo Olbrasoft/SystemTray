@@ -11,19 +11,19 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>Olbrasoft.SystemTray.Linux</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>Olbrasoft</Authors>
     <Company>Olbrasoft</Company>
     <Product>Olbrasoft SystemTray.Linux</Product>
-    <Description>Linux system tray icon library using D-Bus StatusNotifierItem protocol. Supports dynamic icon changes, animations, and multiple simultaneous icons. Hides D-Bus complexity behind a clean C# interface.</Description>
+    <Description>Linux system tray icon library using D-Bus StatusNotifierItem protocol. Supports dynamic icon changes, animations, context menus (DBusMenu), and multiple simultaneous icons. Hides D-Bus complexity behind a clean C# interface.</Description>
     <Copyright>© Olbrasoft 2025</Copyright>
-    <PackageTags>linux;systemtray;dbus;statusnotifieritem;trayicon;notification;icon;animation;NET10</PackageTags>
+    <PackageTags>linux;systemtray;dbus;statusnotifieritem;trayicon;notification;icon;animation;menu;dbusmenu;NET10</PackageTags>
     <RepositoryUrl>https://github.com/Olbrasoft/SystemTray</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>tray.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/Olbrasoft/SystemTray</PackageProjectUrl>
-    <PackageReleaseNotes>Version 1.0.0: Initial release with D-Bus StatusNotifierItem support, dynamic icons, and animations.</PackageReleaseNotes>
+    <PackageReleaseNotes>Version 1.1.0: Added context menu support via DBusMenu protocol. Applications can now register custom menu handlers with their tray icons.</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -46,11 +46,12 @@
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="DBusGeneratorMode" />
   </ItemGroup>
 
-  <!-- D-Bus XML interfaces for StatusNotifierItem -->
+  <!-- D-Bus XML interfaces for StatusNotifierItem and DBusMenu -->
   <ItemGroup>
     <AdditionalFiles Include="DBusXml/org.freedesktop.DBus.xml" DBusGeneratorMode="Proxy" />
     <AdditionalFiles Include="DBusXml/org.kde.StatusNotifierWatcher.xml" DBusGeneratorMode="Proxy" />
     <AdditionalFiles Include="DBusXml/org.kde.StatusNotifierItem.xml" DBusGeneratorMode="Handler" />
+    <AdditionalFiles Include="DBusXml/com.canonical.dbusmenu.xml" DBusGeneratorMode="Handler" />
   </ItemGroup>
 
   <!-- Include README and icon in NuGet package -->

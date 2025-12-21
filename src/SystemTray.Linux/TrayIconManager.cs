@@ -28,6 +28,28 @@ public class TrayIconManager : ITrayIconManager
     /// <inheritdoc />
     public async Task<ITrayIcon> CreateIconAsync(string id, string iconPath, string? tooltip = null, CancellationToken cancellationToken = default)
     {
+        return await CreateIconAsync(id, iconPath, tooltip, null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Creates a new tray icon with optional context menu support.
+    /// </summary>
+    /// <param name="id">Unique identifier for the icon</param>
+    /// <param name="iconPath">Path to the SVG icon file</param>
+    /// <param name="tooltip">Optional tooltip text</param>
+    /// <param name="menuHandler">Optional menu handler for context menu. Must implement ITrayMenuHandler interface.</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Created tray icon instance</returns>
+    /// <exception cref="ObjectDisposedException">Manager has been disposed</exception>
+    /// <exception cref="ArgumentException">ID is null or whitespace</exception>
+    /// <exception cref="InvalidOperationException">Icon with this ID already exists</exception>
+    public async Task<ITrayIcon> CreateIconAsync(
+        string id,
+        string iconPath,
+        string? tooltip = null,
+        ITrayMenuHandler? menuHandler = null,
+        CancellationToken cancellationToken = default)
+    {
         if (_isDisposed)
             throw new ObjectDisposedException(nameof(TrayIconManager));
 
@@ -40,14 +62,14 @@ public class TrayIconManager : ITrayIconManager
         try
         {
             var trayIconLogger = _loggerFactory.CreateLogger<TrayIcon>();
-            var trayIcon = new TrayIcon(trayIconLogger, _iconRenderer, id);
+            var trayIcon = new TrayIcon(trayIconLogger, _iconRenderer, id, menuHandler);
 
             await trayIcon.InitializeAsync(cancellationToken);
             trayIcon.SetIcon(iconPath, tooltip);
 
             _icons[id] = trayIcon;
 
-            _logger.LogInformation("Created tray icon '{Id}'", id);
+            _logger.LogInformation("Created tray icon '{Id}' {MenuStatus}", id, menuHandler != null ? "with menu" : "without menu");
             return trayIcon;
         }
         catch (Exception ex)

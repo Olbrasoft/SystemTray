@@ -14,12 +14,14 @@ public class TrayIcon : ITrayIcon
     private readonly ILogger<TrayIcon> _logger;
     private readonly IIconRenderer _iconRenderer;
     private readonly string _id;
+    private readonly ITrayMenuHandler? _menuHandler;
 
     private Connection? _connection;
     private OrgFreedesktopDBusProxy? _dBus;
     private OrgKdeStatusNotifierWatcherProxy? _statusNotifierWatcher;
     private StatusNotifierItemHandler? _sniHandler;
     private PathHandler? _pathHandler;
+    private PathHandler? _menuPathHandler;
 
     private IDisposable? _serviceWatchDisposable;
 
@@ -62,11 +64,12 @@ public class TrayIcon : ITrayIcon
     /// <inheritdoc />
     public event EventHandler? MenuRequested;
 
-    public TrayIcon(ILogger<TrayIcon> logger, IIconRenderer iconRenderer, string id)
+    public TrayIcon(ILogger<TrayIcon> logger, IIconRenderer iconRenderer, string id, ITrayMenuHandler? menuHandler = null)
     {
         _logger = logger;
         _iconRenderer = iconRenderer;
         _id = id;
+        _menuHandler = menuHandler;
     }
 
     /// <inheritdoc />
@@ -166,6 +169,28 @@ public class TrayIcon : ITrayIcon
             _connection.RemoveMethodHandler(_pathHandler!.Path);
             _connection.AddMethodHandler(_pathHandler);
 
+            // Add menu handler if provided
+            if (_menuHandler is not null)
+            {
+                // Menu handler must implement IDBusInterfaceHandler (from ComCanonicalDbusmenuHandler)
+                if (_menuHandler is IDBusInterfaceHandler dbusHandler)
+                {
+                    if (dbusHandler.PathHandler is null)
+                    {
+                        _menuPathHandler = new PathHandler("/MenuBar");
+                        _menuPathHandler.Add(dbusHandler);
+                    }
+
+                    _connection.RemoveMethodHandler(_menuPathHandler!.Path);
+                    _connection.AddMethodHandler(_menuPathHandler);
+                    _logger.LogDebug("Menu handler registered at /MenuBar");
+                }
+                else
+                {
+                    _logger.LogWarning("Menu handler does not implement IDBusInterfaceHandler, menu will not be registered");
+                }
+            }
+
             // Register with unique connection name only
             _sysTrayServiceName = _connection.UniqueName!;
             await _statusNotifierWatcher.RegisterStatusNotifierItemAsync(_sysTrayServiceName);
@@ -208,6 +233,16 @@ public class TrayIcon : ITrayIcon
         {
             _pathHandler!.Remove(_sniHandler);
             _connection.RemoveMethodHandler(_pathHandler.Path);
+
+            // Remove menu handler if registered
+            if (_menuHandler is not null && _menuPathHandler is not null)
+            {
+                if (_menuHandler is IDBusInterfaceHandler dbusHandler)
+                {
+                    _menuPathHandler.Remove(dbusHandler);
+                    _connection.RemoveMethodHandler(_menuPathHandler.Path);
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -325,8 +360,10 @@ public class TrayIcon : ITrayIcon
         if (_isDisposed)
             throw new ObjectDisposedException(nameof(TrayIcon));
 
-        // TODO: Implement D-Bus menu support
-        throw new NotImplementedException("Menu support not yet implemented");
+        throw new InvalidOperationException(
+            "Menu must be set during TrayIcon construction. " +
+            "Use TrayIconManager.CreateIconAsync with a custom ITrayMenuHandler implementation. " +
+            "See ITrayMenuHandler documentation for details.");
     }
 
     /// <inheritdoc />
