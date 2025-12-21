@@ -1,4 +1,4 @@
-namespace Olbrasoft.Linux.SystemTray;
+namespace Olbrasoft.SystemTray.Linux;
 
 /// <summary>
 /// Represents a system tray icon with support for dynamic icon changes, animations, and menus.

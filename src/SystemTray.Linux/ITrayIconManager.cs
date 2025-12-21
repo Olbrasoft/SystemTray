@@ -1,4 +1,4 @@
-namespace Olbrasoft.Linux.SystemTray;
+namespace Olbrasoft.SystemTray.Linux;
 
 /// <summary>
 /// Manages multiple tray icons simultaneously.

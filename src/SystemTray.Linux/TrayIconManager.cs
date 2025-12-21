@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
-namespace Olbrasoft.Linux.SystemTray;
+namespace Olbrasoft.SystemTray.Linux;
 
 /// <summary>
 /// Manages multiple tray icons simultaneously.

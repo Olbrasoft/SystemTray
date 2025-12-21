@@ -1,4 +1,4 @@
-namespace Olbrasoft.Linux.SystemTray;
+namespace Olbrasoft.SystemTray.Linux;
 
 /// <summary>
 /// Handles rendering of SVG icons to ARGB pixmap data for D-Bus StatusNotifierItem.

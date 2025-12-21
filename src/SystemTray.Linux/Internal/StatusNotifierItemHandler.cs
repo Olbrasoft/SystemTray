@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using Tmds.DBus.SourceGenerator;
 using Tmds.DBus.Protocol;
 
-namespace Olbrasoft.Linux.SystemTray.Internal;
+namespace Olbrasoft.SystemTray.Linux.Internal;
 
 /// <summary>
 /// D-Bus handler for StatusNotifierItem interface.

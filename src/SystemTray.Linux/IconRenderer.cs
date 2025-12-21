@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using SkiaSharp;
 using Svg.Skia;
 
-namespace Olbrasoft.Linux.SystemTray;
+namespace Olbrasoft.SystemTray.Linux;
 
 /// <summary>
 /// Renders SVG icons to ARGB format for D-Bus StatusNotifierItem.

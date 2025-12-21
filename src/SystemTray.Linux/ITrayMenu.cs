@@ -1,4 +1,4 @@
-namespace Olbrasoft.Linux.SystemTray;
+namespace Olbrasoft.SystemTray.Linux;
 
 /// <summary>
 /// Represents a context menu for a tray icon.

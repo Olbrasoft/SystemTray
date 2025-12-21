@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
-using Olbrasoft.Linux.SystemTray.Internal;
+using Olbrasoft.SystemTray.Linux.Internal;
 using Tmds.DBus.Protocol;
 using Tmds.DBus.SourceGenerator;
 
-namespace Olbrasoft.Linux.SystemTray;
+namespace Olbrasoft.SystemTray.Linux;
 
 /// <summary>
 /// Implementation of ITrayIcon using D-Bus StatusNotifierItem.
