@@ -33,6 +33,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.1" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="SkiaSharp" Version="3.119.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
     <PackageReference Include="Svg.Skia" Version="3.2.1" />
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.22.0" />
     <PackageReference Include="Tmds.DBus.SourceGenerator" Version="0.0.21">
