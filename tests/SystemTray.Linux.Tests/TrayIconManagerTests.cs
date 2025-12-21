@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Moq;
+using Olbrasoft.Testing.Xunit.Attributes;
 
 namespace Olbrasoft.SystemTray.Linux.Tests;
 
@@ -43,7 +44,7 @@ public class TrayIconManagerTests
         Assert.Empty(manager.Icons);
     }
 
-    [Fact(Skip = "Requires D-Bus session bus (not available on CI)")]
+    [SkipOnCIFact]
     public async Task CreateIconAsync_WithDuplicateId_ThrowsInvalidOperationException()
     {
         // Arrange
