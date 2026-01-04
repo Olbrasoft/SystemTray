@@ -85,6 +85,7 @@ public class TrayIcon : ITrayIcon
         {
             _connection = new Connection(Address.Session!);
             await _connection.ConnectAsync();
+            _logger.LogDebug("TrayIcon '{Id}': Connection created: {ConnectionName}", _id, _connection.UniqueName);
 
             _dBus = new OrgFreedesktopDBusProxy(_connection, "org.freedesktop.DBus", "/org/freedesktop/DBus");
 
@@ -198,9 +199,15 @@ public class TrayIcon : ITrayIcon
 
         try
         {
+            var beforeName = _connection!.UniqueName;
+            _logger.LogDebug("TrayIcon '{Id}': BEFORE RegisterWithDbus - connection {ConnectionName}", _id, beforeName);
+
             // Let the menu handler register itself with D-Bus
             // This avoids cross-assembly type incompatibility issues
             _menuHandler.RegisterWithDbus(_connection!);
+
+            var afterName = _connection!.UniqueName;
+            _logger.LogDebug("TrayIcon '{Id}': AFTER RegisterWithDbus - connection before={Before}, after={After}", _id, beforeName, afterName);
         }
         catch (Exception ex)
         {
@@ -214,13 +221,24 @@ public class TrayIcon : ITrayIcon
     private async Task RegisterWithStatusNotifierWatcherAsync()
     {
         _sysTrayServiceName = _connection!.UniqueName!;
-        await _statusNotifierWatcher!.RegisterStatusNotifierItemAsync(_sysTrayServiceName);
+        _logger.LogDebug("TrayIcon '{Id}': About to call RegisterStatusNotifierItemAsync with {ServiceName}", _id, _sysTrayServiceName);
+
+        try
+        {
+            await _statusNotifierWatcher!.RegisterStatusNotifierItemAsync(_sysTrayServiceName);
+            _logger.LogDebug("TrayIcon '{Id}': RegisterStatusNotifierItemAsync succeeded for {ServiceName}", _id, _sysTrayServiceName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "TrayIcon '{Id}': RegisterStatusNotifierItemAsync FAILED for {ServiceName}", _id, _sysTrayServiceName);
+            throw;
+        }
 
         // Set initial state IMMEDIATELY after registration
         _sniHandler!.SetTitleAndTooltip(_tooltipText);
         _sniHandler.SetIcon(_currentIcon);
 
-        _logger.LogInformation("Tray icon registered as {ServiceName}", _sysTrayServiceName);
+        _logger.LogInformation("Tray icon '{Id}' registered as {ServiceName}", _id, _sysTrayServiceName);
     }
 
     /// <summary>
@@ -234,12 +252,16 @@ public class TrayIcon : ITrayIcon
             await Task.Delay(GnomeShellInitialDelayMs);
             if (!_isDisposed && _sniHandler?.PathHandler is not null)
             {
+                _logger.LogDebug("TrayIcon '{Id}': Re-emit 1 - Connection is {Status}, UniqueName={Name}",
+                    _id, _connection != null ? "alive" : "NULL", _connection?.UniqueName ?? "N/A");
                 _sniHandler.SetIcon(_currentIcon);
             }
 
             await Task.Delay(GnomeShellSecondDelayMs);
             if (!_isDisposed && _sniHandler?.PathHandler is not null)
             {
+                _logger.LogDebug("TrayIcon '{Id}': Re-emit 2 - Connection is {Status}, UniqueName={Name}",
+                    _id, _connection != null ? "alive" : "NULL", _connection?.UniqueName ?? "N/A");
                 _sniHandler.SetIcon(_currentIcon);
                 _logger.LogDebug("Re-emitted icon signals for GNOME Shell");
             }
@@ -419,6 +441,8 @@ public class TrayIcon : ITrayIcon
 
         _isDisposed = true;
         IsVisible = false;
+
+        _logger.LogDebug("TrayIcon '{Id}': Disposing (connection: {ConnectionName})", _id, _connection?.UniqueName ?? "null");
 
         StopAnimation();
         DestroyTrayIcon();
